@@ -1,7 +1,7 @@
 var Project = require('../../lib/pipes/project')
 var assert = require('assert');
 
-suite("Pipe.project", function() {
+suite("Pipes.project", function() {
   suite("invalid DSL", function() {
     test("with object as values", function() {
       var p = new Project({abc: {}});
