@@ -5,37 +5,37 @@ suite('Pipes.Group', function() {
   suite("invalid DSL", function() {
     test("_id with boolean", function() {
       var g = new Group({_id: true});
-      assert.ok(g.validate() instanceof Error);
+      assert.ok(g.hasErrors() instanceof Error);
     });
 
     test("_id contains sourceField without $", function() {
       var g = new Group({_id: "abc"});
-      assert.ok(g.validate() instanceof Error);
+      assert.ok(g.hasErrors() instanceof Error);
     });
 
     test("_id contains sourceField with .", function() {
       var g = new Group({_id: "$aa.aa"});
-      assert.ok(g.validate() instanceof Error);
+      assert.ok(g.hasErrors() instanceof Error);
     });
 
     test("_id object contains sourceField without $", function() {
       var g = new Group({_id: {"abc": "aa"}});
-      assert.ok(g.validate() instanceof Error);
+      assert.ok(g.hasErrors() instanceof Error);
     });
 
     test("_id object contains sourceField with .", function() {
       var g = new Group({_id: {"abc": "$aa.dd"}});
-      assert.ok(g.validate() instanceof Error);
+      assert.ok(g.hasErrors() instanceof Error);
     });
 
     test("field without operator", function() {
       var g = new Group({_id: "$hello", aa: {}});
-      assert.ok(g.validate() instanceof Error);
+      assert.ok(g.hasErrors() instanceof Error);
     });
 
     test("field syntax other than an object", function() {
       var g = new Group({_id: "$hello", aa: 10});
-      assert.ok(g.validate() instanceof Error);
+      assert.ok(g.hasErrors() instanceof Error);
     });
 
     test("field with multiple operators", function() {
@@ -43,27 +43,27 @@ suite('Pipes.Group', function() {
         $sum: "$aa",
         $avg: "$bb"
       }});
-      assert.ok(g.validate() instanceof Error);
+      assert.ok(g.hasErrors() instanceof Error);
     });
 
     test("field with unsupported operator", function() {
       var g = new Group({_id: "$hello", aa: {
         $sd: "$aa"
       }});
-      assert.ok(g.validate() instanceof Error);
+      assert.ok(g.hasErrors() instanceof Error);
     });
 
     test("field contains sourceField without $", function() {
       var g = new Group({_id: "$hello", aa: {
         $sum: "aa"
       }});
-      assert.ok(g.validate() instanceof Error);
+      assert.ok(g.hasErrors() instanceof Error);
     });
     test("field contains sourceField with .", function() {
       var g = new Group({_id: "$hello", aa: {
         $sum: "$aa.ff"
       }});
-      assert.ok(g.validate() instanceof Error);
+      assert.ok(g.hasErrors() instanceof Error);
     });
   });
 

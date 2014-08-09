@@ -5,19 +5,19 @@ suite("Pipes.project", function() {
   suite("invalid DSL", function() {
     test("with object as values", function() {
       var p = new Project({abc: {}});
-      var validated = p.validate();
+      var validated = p.hasErrors();
       assert.ok(validated.message);
     });
 
     test("without $ in values", function() {
       var p = new Project({abc: "hmm"});
-      var validated = p.validate();
+      var validated = p.hasErrors();
       assert.ok(validated.message);
     });
 
     test("dot(.) in values", function() {
       var p = new Project({abc: "$hmm.aa"});
-      var validated = p.validate();
+      var validated = p.hasErrors();
       assert.ok(validated.message);
     });
   });
