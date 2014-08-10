@@ -175,5 +175,39 @@ suite("Pipes.match", function() {
       });
     });
 
+    suite("$eq", function() {
+      test("for numbers", function() {
+        var dataSet = [
+          {user: "arunoda", marks: 200},
+          {user: "kamal", marks: 100, grade: 20},
+          {user: "arunoda", marks: 100, grade: 10},
+        ];
+
+        var m = new Match({"$grade": {$eq: 10}});
+        var result = m.apply(dataSet);
+
+        assert.deepEqual(result, [
+          {user: "arunoda", marks: 100, grade: 10},
+        ]);
+      });
+    });
+
+    suite("$ne", function() {
+      test("for numbers", function() {
+        var dataSet = [
+          {user: "arunoda", marks: 200},
+          {user: "kamal", marks: 100, grade: 20},
+          {user: "arunoda", marks: 100, grade: 10},
+        ];
+
+        var m = new Match({"$marks": {$ne: 100}});
+        var result = m.apply(dataSet);
+
+        assert.deepEqual(result, [
+          {user: "arunoda", marks: 200},
+        ]);
+      });
+    });
+
   });
 });
