@@ -31,6 +31,21 @@ suite("Pipes.match", function() {
       ]);
     });
 
+    test("regexp support", function() {
+      var dataSet = [
+        {user: "arunoda", marks: 200},
+        {user: "kamal", marks: 100, grade: 20},
+        {user: "arunoda", marks: 100, grade: 10},
+      ];
+
+      var m = new Match({"$user": /ama/});
+      var result = m.apply(dataSet);
+
+      assert.deepEqual(result, [
+        {user: "kamal", marks: 100, grade: 20},
+      ]);
+    });
+
     test("simple multi field", function() {
       var dataSet = [
         {user: "arunoda", marks: 200},
