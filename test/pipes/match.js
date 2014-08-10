@@ -15,72 +15,165 @@ suite("Pipes.match", function() {
   });
 
   suite("applying pipe", function() {
-    test("simple single field", function() {
-      var dataSet = [
-        {user: "arunoda", marks: 200},
-        {user: "kamal", marks: 100, grade: 20},
-        {user: "arunoda", marks: 100, grade: 10},
-      ];
+    suite("simple operator", function() {
+      test("single field", function() {
+        var dataSet = [
+          {user: "arunoda", marks: 200},
+          {user: "kamal", marks: 100, grade: 20},
+          {user: "arunoda", marks: 100, grade: 10},
+        ];
 
-      var m = new Match({"$user": "arunoda"});
-      var result = m.apply(dataSet);
+        var m = new Match({"$user": "arunoda"});
+        var result = m.apply(dataSet);
 
-      assert.deepEqual(result, [
-        {user: "arunoda", marks: 200},
-        {user: "arunoda", marks: 100, grade: 10},
-      ]);
-    });
-
-    test("regexp support", function() {
-      var dataSet = [
-        {user: "arunoda", marks: 200},
-        {user: "kamal", marks: 100, grade: 20},
-        {user: "arunoda", marks: 100, grade: 10},
-      ];
-
-      var m = new Match({"$user": /ama/});
-      var result = m.apply(dataSet);
-
-      assert.deepEqual(result, [
-        {user: "kamal", marks: 100, grade: 20},
-      ]);
-    });
-
-    test("simple multi field", function() {
-      var dataSet = [
-        {user: "arunoda", marks: 200},
-        {user: "kamal", marks: 100, grade: 20},
-        {user: "arunoda", marks: 100, grade: 10},
-      ];
-
-      var m = new Match({
-        "$user": "arunoda",
-        "$marks": 200
+        assert.deepEqual(result, [
+          {user: "arunoda", marks: 200},
+          {user: "arunoda", marks: 100, grade: 10},
+        ]);
       });
 
-      var result = m.apply(dataSet);
+      test("regexp support", function() {
+        var dataSet = [
+          {user: "arunoda", marks: 200},
+          {user: "kamal", marks: 100, grade: 20},
+          {user: "arunoda", marks: 100, grade: 10},
+        ];
 
-      assert.deepEqual(result, [
-        {user: "arunoda", marks: 200}
-      ]);
+        var m = new Match({"$user": /ama/});
+        var result = m.apply(dataSet);
+
+        assert.deepEqual(result, [
+          {user: "kamal", marks: 100, grade: 20},
+        ]);
+      });
+
+      test("multi field", function() {
+        var dataSet = [
+          {user: "arunoda", marks: 200},
+          {user: "kamal", marks: 100, grade: 20},
+          {user: "arunoda", marks: 100, grade: 10},
+        ];
+
+        var m = new Match({
+          "$user": "arunoda",
+          "$marks": 200
+        });
+
+        var result = m.apply(dataSet);
+
+        assert.deepEqual(result, [
+          {user: "arunoda", marks: 200}
+        ]);
+      });
+
+      test("multi field", function() {
+        var dataSet = [
+          {user: "arunoda", marks: 200},
+          {user: "kamal", marks: 100, grade: 20},
+          {user: "arunoda", marks: 100, grade: 10},
+        ];
+
+        var m = new Match({
+          "$user": "arunoda",
+          "$marks": 200
+        });
+
+        var result = m.apply(dataSet);
+
+        assert.deepEqual(result, [
+          {user: "arunoda", marks: 200}
+        ]);
+      });
+
+      test("no field", function() {
+        var dataSet = [
+          {user: "arunoda", marks: 200},
+          {user: "kamal", marks: 100, grade: 20},
+          {user: "arunoda", marks: 100, grade: 10},
+        ];
+
+        var m = new Match({});
+
+        var result = m.apply(dataSet);
+
+        assert.deepEqual(result, [
+          {user: "arunoda", marks: 200},
+          {user: "kamal", marks: 100, grade: 20},
+          {user: "arunoda", marks: 100, grade: 10},
+        ]);
+      });
+
     });
 
-    test("simple no field", function() {
-      var dataSet = [
-        {user: "arunoda", marks: 200},
-        {user: "kamal", marks: 100, grade: 20},
-        {user: "arunoda", marks: 100, grade: 10},
-      ];
+    suite("$lt", function() {
+      test("for numbers", function() {
+        var dataSet = [
+          {user: "arunoda", marks: 200},
+          {user: "kamal", marks: 100, grade: 20},
+          {user: "arunoda", marks: 100, grade: 10},
+        ];
 
-      var m = new Match({});
+        var m = new Match({"$marks": {$lt: 110}});
+        var result = m.apply(dataSet);
 
-      var result = m.apply(dataSet);
-
-      assert.deepEqual(result, [
-        {user: "arunoda", marks: 200},
-        {user: "kamal", marks: 100, grade: 20},
-        {user: "arunoda", marks: 100, grade: 10},
-      ]);
+        assert.deepEqual(result, [
+          {user: "kamal", marks: 100, grade: 20},
+          {user: "arunoda", marks: 100, grade: 10},
+        ]);
+      });
     });
+
+    suite("$lte", function() {
+      test("for numbers", function() {
+        var dataSet = [
+          {user: "arunoda", marks: 200},
+          {user: "kamal", marks: 100, grade: 20},
+          {user: "arunoda", marks: 100, grade: 10},
+        ];
+
+        var m = new Match({"$marks": {$lte: 100}});
+        var result = m.apply(dataSet);
+
+        assert.deepEqual(result, [
+          {user: "kamal", marks: 100, grade: 20},
+          {user: "arunoda", marks: 100, grade: 10},
+        ]);
+      });
+    });
+
+    suite("$gt", function() {
+      test("for numbers", function() {
+        var dataSet = [
+          {user: "arunoda", marks: 200},
+          {user: "kamal", marks: 100, grade: 20},
+          {user: "arunoda", marks: 100, grade: 10},
+        ];
+
+        var m = new Match({"$marks": {$gt: 100}});
+        var result = m.apply(dataSet);
+
+        assert.deepEqual(result, [
+          {user: "arunoda", marks: 200},
+        ]);
+      });
+    });
+
+    suite("$gte", function() {
+      test("for numbers", function() {
+        var dataSet = [
+          {user: "arunoda", marks: 200},
+          {user: "kamal", marks: 100, grade: 20},
+          {user: "arunoda", marks: 100, grade: 10},
+        ];
+
+        var m = new Match({"$marks": {$gte: 200}});
+        var result = m.apply(dataSet);
+
+        assert.deepEqual(result, [
+          {user: "arunoda", marks: 200},
+        ]);
+      });
+    });
+
   });
 });
