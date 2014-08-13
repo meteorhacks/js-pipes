@@ -29,6 +29,52 @@ suite("Pipeline", function() {
   });
 
   suite("applying pipe", function() {
+    test("simple pipeline", function(done) {
+      var stages = [
+        {$group: {_id: "$username", marks: {$sum: "$marks"}}},
+        {$sort: {marks: -1}},
+        {$limit: 1},
+        {$project: {username: "$_id"}}
+      ];
 
+      var dataSet = [
+        {username: 'arunoda', marks: 90, subject: "maths"},
+        {username: 'arunoda', marks: 100, subject: "english"},
+        {username: 'kuma', marks: 90, subject: "maths"},
+      ];
+
+      var pipeline = new Pipeline(stages);
+      assert.ok(!pipeline.hasErrors());
+
+      pipeline.apply(dataSet, function(err, result) {
+        assert.deepEqual(result, [
+          {username: "arunoda"}
+        ])
+        done();
+      });
+    });
+
+    test("reusing pipeline", function(done) {
+      var stages = [
+        {$limit: 1},
+      ];
+
+      var dataSet = [
+        {username: 'arunoda', marks: 90, subject: "maths"},
+        {username: 'arunoda', marks: 100, subject: "english"},
+        {username: 'kuma', marks: 90, subject: "maths"},
+      ];
+
+      var pipeline = new Pipeline(stages);
+      assert.ok(!pipeline.hasErrors());
+
+      pipeline.apply(dataSet, function(err, result) {
+        assert.ifError(err);
+        pipeline.apply(dataSet, function(err) {
+          assert.ok(err.message);
+          done();
+        });
+      });
+    });
   });
 });
