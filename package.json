@@ -6,5 +6,6 @@
   },
   "devDependencies": {
     "mocha": "*"
-  }
+  },
+  "repository": "https://github.com/arunoda/cas-pipes.git",
 }
