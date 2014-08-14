@@ -2,10 +2,13 @@
   "name": "cas-pipes",
   "version": "0.0.1",
   "dependencies": {
-    "node-cassandra-cql": "0.5.x"
+    "node-cassandra-cql": "0.5.x",
+    "connect": "2.25.x"
   },
   "devDependencies": {
-    "mocha": "*"
+    "mocha": "1.21.x",
+    "request": "2.40.x",
+    "portfinder": "0.2.x"
   },
-  "repository": "https://github.com/arunoda/cas-pipes.git",
+  "repository": "https://github.com/arunoda/cas-pipes.git"
 }
