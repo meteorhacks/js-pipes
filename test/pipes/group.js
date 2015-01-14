@@ -150,5 +150,23 @@ suite('Pipes.Group', function() {
       var result = Group.operators.$max(dataSet);
       assert.equal(result, 20);
     });
+
+    test("$addToSet", function() {
+      var dataSet = [10, 20, 20, 3];
+      var result = Group.operators.$addToSet(dataSet);
+      assert.deepEqual(result, [10, 20, 3]);
+    });
+
+    test("$first", function() {
+      var dataSet = [10, 20, 20, 3];
+      var result = Group.operators.$first(dataSet);
+      assert.deepEqual(result, 10);
+    });
+
+    test("$last", function() {
+      var dataSet = [10, 20, 20, 3];
+      var result = Group.operators.$last(dataSet);
+      assert.deepEqual(result, 3);
+    });
   });
 });
