@@ -1,4 +1,2 @@
-cas-pipes
-=========
-
-MongoDB Aggregation Pipelines meets Cassandra
+# js-pipes
+MongoDB aggregation pipeline with javascript
