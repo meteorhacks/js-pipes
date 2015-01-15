@@ -2,10 +2,11 @@
   "name": "js-pipes",
   "version": "0.0.1",
   "devDependencies": {
-    "mocha": "1.21.x"
+    "mocha": "1.21.x",
+    "mongodb": "1.4.x"
   },
   "repository": "https://github.com/meteorhacks/js-pipes.git",
   "dependencies": {
-    "lodash": "^2.4.1"
+    "lodash": "2.4.x"
   }
 }
