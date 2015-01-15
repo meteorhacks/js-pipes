@@ -3,12 +3,6 @@ var assert = require('assert');
 
 suite("Pipes.project", function() {
   suite("invalid DSL", function() {
-    test("with object as values", function() {
-      var p = new Project({abc: {}});
-      var validated = p.hasErrors();
-      assert.ok(validated.message);
-    });
-
     test("without $ in values", function() {
       var p = new Project({abc: "hmm"});
       var validated = p.hasErrors();

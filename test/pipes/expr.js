@@ -5,7 +5,7 @@ suite('Expressions', function () {
   suite('expr', function () {
     test('pick static values', function () {
       var doc = {};
-      var dsl = {num: 1, str: 's'};
+      var dsl = {num: 100, str: 's'};
       var out = expr(dsl, doc);
       assert.deepEqual(out, dsl);
     });
