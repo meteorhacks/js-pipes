@@ -1,7 +1,12 @@
+var mongo = require('../_mongo');
 var Limit = require('../../lib/pipes/limit')
 var assert = require('assert');
 
 suite("Pipes.limit", function() {
+  setup(function (done) {
+    mongo.connect(done);
+  });
+
   suite("invalid DSL", function() {
     test("limit is lower than 1", function() {
       var s = new Limit(-20);
@@ -10,13 +15,18 @@ suite("Pipes.limit", function() {
   });
 
   suite("applying pipe", function() {
-    test("limiting", function() {
-      var dataSet = [0, 1, 2, 3, 4, 5];
+    test("limiting", function(done) {
+      var dataSet = [{n: 0}, {n: 1}, {n: 2}, {n: 3}, {n: 4}];
 
-      var l = new Limit(2);
+      var dsl = 2;
+      var l = new Limit(dsl);
       var result = l.apply(dataSet);
 
-      assert.deepEqual(result, [0, 1]);
+      mongo.limit(2, dataSet, function (err, res) {
+        if(err) throw err;
+        assert.deepEqual(result, res);
+        done();
+      });
     });
   });
 });

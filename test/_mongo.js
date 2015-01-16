@@ -26,17 +26,99 @@ mongo.connect = function (callback) {
 };
 
 
-mongo.eval = function (dsl, doc, callback) {
+mongo.eval = function (dsl, data, callback) {
+  mongo._set(data, function (err, res) {
+    if(err) return callback(err);
+    mongo._aggr([{$project: dsl}], function (err, res) {
+      if(err) return callback(err);
+      res = mongo._removeId(res[0], '_id');
+      callback(null, res);
+    });
+  });
+};
+
+
+mongo.group = function (dsl, data, callback) {
+  mongo._set(data, function (err, res) {
+    if(err) return callback(err);
+    mongo._aggr([{$group: dsl}], function (err, res) {
+      if(err) return callback(err);
+      callback(null, res);
+    });
+  });
+};
+
+
+mongo.match = function (dsl, data, callback) {
+  mongo._set(data, function (err, res) {
+    if(err) return callback(err);
+    mongo._aggr([{$match: dsl}], function (err, res) {
+      if(err) return callback(err);
+      callback(null, res);
+    });
+  });
+};
+
+
+mongo.sort = function (dsl, data, callback) {
+  mongo._set(data, function (err, res) {
+    if(err) return callback(err);
+    mongo._aggr([{$sort: dsl}], function (err, res) {
+      if(err) return callback(err);
+      callback(null, res);
+    });
+  });
+};
+
+
+mongo.limit = function (dsl, data, callback) {
+  mongo._set(data, function (err, res) {
+    if(err) return callback(err);
+    mongo._aggr([{$limit: dsl}], function (err, res) {
+      if(err) return callback(err);
+      callback(null, res);
+    });
+  });
+};
+
+
+mongo.project = function (dsl, data, callback) {
+  mongo._set(data, function (err, res) {
+    if(err) return callback(err);
+    mongo._aggr([{$project: dsl}], function (err, res) {
+      if(err) return callback(err);
+      callback(null, res);
+    });
+  });
+};
+
+
+mongo.aggregate = function (pipes, data, callback) {
+  mongo._set(data, function (err, res) {
+    if(err) return callback(err);
+    mongo._aggr(pipes, function (err, res) {
+      if(err) return callback(err);
+      callback(null, res);
+    });
+  });
+};
+
+
+mongo._set = function (data, callback) {
   mongo._coll.remove({}, function (err, res) {
-    if(err) throw err;
-    mongo._coll.insert(doc, function () {
-      if(err) throw err;
-      mongo._coll.aggregate([{$project: dsl}], function (err, res) {
-        if(err) throw err;
-        callback(_.omit(res[0], '_id'));
-      })
-    })
-  })
+    if(err) return callback(err);
+    mongo._coll.insert(data, callback);
+  });
+};
+
+
+mongo._aggr = function (pipes, callback) {
+  mongo._coll.aggregate(pipes, callback);
+};
+
+
+mongo._removeId = function (doc) {
+  return _.omit(doc, '_id');
 };
 
 

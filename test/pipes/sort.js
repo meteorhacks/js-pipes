@@ -1,7 +1,12 @@
+var mongo = require('../_mongo');
 var Sort = require('../../lib/pipes/sort')
 var assert = require('assert');
 
 suite("Pipes.sort", function() {
+  setup(function (done) {
+    mongo.connect(done);
+  });
+
   suite("invalid DSL", function() {
     test("with nested fields", function() {
       var s = new Sort({
@@ -33,72 +38,76 @@ suite("Pipes.sort", function() {
   });
 
   suite("applying pipe", function() {
-    test("sort ascending", function() {
+    test("sort ascending", function(done) {
       var dataSet = [
         {user: "arunoda", marks: 100},
         {user: "kamal", marks: 400},
         {user: "arunoda", marks: 200},
       ];
 
-      var s = new Sort({"marks": 1});
+      var dsl = {"marks": 1};
+      var s = new Sort(dsl);
       var result = s.apply(dataSet);
 
-      assert.deepEqual(result, [
-        {user: "arunoda", marks: 100},
-        {user: "arunoda", marks: 200},
-        {user: "kamal", marks: 400},
-      ]);
+      mongo.sort(dsl, dataSet, function (err, res) {
+        if(err) throw err;
+        assert.deepEqual(result, res);
+        done();
+      });
     });
 
-    test("sort descending", function() {
+    test("sort descending", function(done) {
       var dataSet = [
         {user: "arunoda", marks: 100},
         {user: "kamal", marks: 400},
         {user: "arunoda", marks: 200},
       ];
 
-      var s = new Sort({"marks": -1});
+      var dsl = {"marks": -1};
+      var s = new Sort(dsl);
       var result = s.apply(dataSet);
 
-      assert.deepEqual(result, [
-        {user: "kamal", marks: 400},
-        {user: "arunoda", marks: 200},
-        {user: "arunoda", marks: 100},
-      ]);
+      mongo.sort(dsl, dataSet, function (err, res) {
+        if(err) throw err;
+        assert.deepEqual(result, res);
+        done();
+      });
     });
 
-    test("sort with multiple fields", function() {
+    test("sort with multiple fields", function(done) {
       var dataSet = [
         {user: "arunoda", marks: 200},
         {user: "kamal", marks: 100, grade: 20},
         {user: "arunoda", marks: 100, grade: 10},
       ];
 
-      var s = new Sort({"marks": 1, "grade": 1});
+      var dsl = {"marks": 1, "grade": 1};
+      var s = new Sort(dsl);
       var result = s.apply(dataSet);
 
-      assert.deepEqual(result, [
-        {user: "arunoda", marks: 100, grade: 10},
-        {user: "kamal", marks: 100, grade: 20},
-        {user: "arunoda", marks: 200},
-      ]);
+      mongo.sort(dsl, dataSet, function (err, res) {
+        if(err) throw err;
+        assert.deepEqual(result, res);
+        done();
+      });
     });
 
-    test("sort with different orders", function() {
+    test("sort with different orders", function(done) {
       var dataSet = [
         {user: "arunoda", marks: 200},
         {user: "kamal", marks: 100, grade: 20},
         {user: "arunoda", marks: 100, grade: 10},
       ];
 
-      var s = new Sort({"marks": 1, "grade": -1});
+      var dsl = {"marks": 1, "grade": -1};
+      var s = new Sort(dsl);
       var result = s.apply(dataSet);
 
-      assert.deepEqual(result, [
-        {user: "kamal", marks: 100, grade: 20},
-        {user: "arunoda", marks: 100, grade: 10},
-        {user: "arunoda", marks: 200},
-      ]);
+      mongo.sort(dsl, dataSet, function (err, res) {
+        if(err) throw err;
+        assert.deepEqual(result, res);
+        done();
+      });
     });
   });
 });

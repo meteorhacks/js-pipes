@@ -1,7 +1,13 @@
+var _ = require('lodash');
+var mongo = require('../_mongo');
 var Group = require('../../lib/pipes/group')
 var assert = require('assert');
 
-suite('Pipes.Group', function() {
+suite('Pipes.group', function() {
+  setup(function (done) {
+    mongo.connect(done);
+  });
+
   suite("invalid DSL", function() {
     test("_id with boolean", function() {
       var g = new Group({_id: true});
@@ -68,29 +74,25 @@ suite('Pipes.Group', function() {
   });
 
   suite("applying pipe", function() {
-    test("string _id based sum", function() {
-      var g = new Group({_id: "$user", total: {
-        $sum: "$marks"
-      }});
+    test("string _id based sum", function(done) {
+      var dsl = {_id: "$user", total: {$sum: "$marks"}};
+      var g = new Group(dsl);
       var dataSet = [
         {user: "arunoda", marks: 100, sub: "maths"},
         {user: "arunoda", marks: 200, sub: "science"},
         {user: "kamal", marks: 400, sub: "science"},
       ];
       var result = g.apply(dataSet);
-      assert.deepEqual(result, [
-        {_id: "arunoda", total: 300},
-        {_id: "kamal", total: 400},
-      ]);
+      mongo.group(dsl, dataSet, function (err, res) {
+        if(err) throw err;
+        assert.deepEqual(_.sortBy(result, '_id'), _.sortBy(res, '_id'));
+        done();
+      });
     });
 
-    test("object _id (2 fields) based sum", function() {
-      var g = new Group({_id: {
-        user: "$user",
-        sub: "$sub"
-      }, total: {
-        $sum: "$marks"
-      }});
+    test("object _id (2 fields) based sum", function(done) {
+      var dsl = {_id: {user: "$user", sub: "$sub"}, total: {$sum: "$marks"}};
+      var g = new Group(dsl);
 
       var dataSet = [
         {user: "arunoda", marks: 100, sub: "maths", type: "part1"},
@@ -99,19 +101,16 @@ suite('Pipes.Group', function() {
         {user: "kamal", marks: 200, sub: "science", type: "part2"},
       ];
       var result = g.apply(dataSet);
-      assert.deepEqual(result, [
-        {_id: {user: "arunoda", sub: "maths"}, total: 400},
-        {_id: {user: "arunoda", sub: "science"}, total: 500},
-        {_id: {user: "kamal", sub: "science"}, total: 200},
-      ]);
+      mongo.group(dsl, dataSet, function (err, res) {
+        if(err) throw err;
+        assert.deepEqual(_.sortBy(result, 'total'), _.sortBy(res, 'total'));
+        done();
+      });
     });
 
-    test("sum and max at the same time", function() {
-      var g = new Group({
-        _id: "$user",
-        total: {$sum: "$marks"},
-        mean: {$avg: "$marks"}
-      });
+    test("sum and max at the same time", function(done) {
+      var dsl = {_id: "$user", total: {$sum: "$marks"}, avg: {$avg: "$marks"}};
+      var g = new Group(dsl);
 
       var dataSet = [
         {user: "arunoda", marks: 100, sub: "maths"},
@@ -119,54 +118,99 @@ suite('Pipes.Group', function() {
         {user: "kamal", marks: 400, sub: "science"},
       ];
       var result = g.apply(dataSet);
-      assert.deepEqual(result, [
-        {_id: "arunoda", total: 300, mean: 150},
-        {_id: "kamal", total: 400, mean: 400},
-      ]);
+      mongo.group(dsl, dataSet, function (err, res) {
+        if(err) throw err;
+        assert.deepEqual(_.sortBy(result, '_id'), _.sortBy(res, '_id'));
+        done();
+      });
     });
   });
 
   suite("operators", function() {
-    test("$sum", function() {
-      var dataSet = [10, 20, 20, 10];
-      var result = Group.operators.$sum(dataSet);
-      assert.equal(result, 60);
+    test("$sum", function(done) {
+      var dsl = {_id: {}, val: {$sum: '$num'}};
+      var g = new Group(dsl);
+      var dataSet = [{num: 10}, {num: 20}, {num: 20}, {num: 10}];
+      var result = g.apply(dataSet);
+      mongo.group(dsl, dataSet, function (err, res) {
+        if(err) throw err;
+        assert.deepEqual(_.sortBy(result, '_id'), _.sortBy(res, '_id'));
+        done();
+      });
     });
 
-    test("$avg", function() {
-      var dataSet = [10, 20, 20, 10];
-      var result = Group.operators.$avg(dataSet);
-      assert.equal(result, 15);
+    test("$avg", function(done) {
+      var dsl = {_id: {}, val: {$avg: '$num'}};
+      var g = new Group(dsl);
+      var dataSet = [{num: 10}, {num: 20}, {num: 20}, {num: 10}];
+      var result = g.apply(dataSet);
+      mongo.group(dsl, dataSet, function (err, res) {
+        if(err) throw err;
+        assert.deepEqual(_.sortBy(result, '_id'), _.sortBy(res, '_id'));
+        done();
+      });
     });
 
-    test("$min", function() {
-      var dataSet = [-1, 20, 20, 3];
-      var result = Group.operators.$min(dataSet);
-      assert.equal(result, -1);
+    test("$min", function(done) {
+      var dsl = {_id: {}, val: {$min: '$num'}};
+      var g = new Group(dsl);
+      var dataSet = [{num: -1}, {num: 20}, {num: 20}, {num: 3}];
+      var result = g.apply(dataSet);
+      mongo.group(dsl, dataSet, function (err, res) {
+        if(err) throw err;
+        assert.deepEqual(_.sortBy(result, '_id'), _.sortBy(res, '_id'));
+        done();
+      });
     });
 
-    test("$max", function() {
-      var dataSet = [10, 20, 20, 3];
-      var result = Group.operators.$max(dataSet);
-      assert.equal(result, 20);
+    test("$max", function(done) {
+      var dsl = {_id: {}, val: {$max: '$num'}};
+      var g = new Group(dsl);
+      var dataSet = [{num: 10}, {num: 20}, {num: 20}, {num: 3}];
+      var result = g.apply(dataSet);
+      mongo.group(dsl, dataSet, function (err, res) {
+        if(err) throw err;
+        assert.deepEqual(_.sortBy(result, '_id'), _.sortBy(res, '_id'));
+        done();
+      });
     });
 
-    test("$addToSet", function() {
-      var dataSet = [10, 20, 20, 3];
-      var result = Group.operators.$addToSet(dataSet);
-      assert.deepEqual(result, [10, 20, 3]);
+    test("$addToSet", function(done) {
+      var dsl = {_id: {}, val: {$addToSet: '$num'}};
+      var g = new Group(dsl);
+      var dataSet = [{num: 10}, {num: 20}, {num: 20}, {num: 3}];
+      var result = g.apply(dataSet);
+      mongo.group(dsl, dataSet, function (err, res) {
+        if(err) throw err;
+        result[0].val.sort();
+        res[0].val.sort();
+        assert.deepEqual(_.sortBy(result, '_id'), _.sortBy(res, '_id'));
+        done();
+      });
     });
 
-    test("$first", function() {
-      var dataSet = [10, 20, 20, 3];
-      var result = Group.operators.$first(dataSet);
-      assert.deepEqual(result, 10);
+    test("$first", function(done) {
+      var dsl = {_id: {}, val: {$first: '$num'}};
+      var g = new Group(dsl);
+      var dataSet = [{num: 10}, {num: 20}, {num: 20}, {num: 3}];
+      var result = g.apply(dataSet);
+      mongo.group(dsl, dataSet, function (err, res) {
+        if(err) throw err;
+        assert.deepEqual(_.sortBy(result, '_id'), _.sortBy(res, '_id'));
+        done();
+      });
     });
 
-    test("$last", function() {
-      var dataSet = [10, 20, 20, 3];
-      var result = Group.operators.$last(dataSet);
-      assert.deepEqual(result, 3);
+    test("$last", function(done) {
+      var dsl = {_id: {}, val: {$last: '$num'}};
+      var g = new Group(dsl);
+      var dataSet = [{num: 10}, {num: 20}, {num: 20}, {num: 3}];
+      var result = g.apply(dataSet);
+      mongo.group(dsl, dataSet, function (err, res) {
+        if(err) throw err;
+        assert.deepEqual(_.sortBy(result, '_id'), _.sortBy(res, '_id'));
+        done();
+      });
     });
   });
 });

@@ -1,213 +1,232 @@
+var mongo = require('../_mongo');
 var Match = require('../../lib/pipes/match')
 var assert = require('assert');
 
 suite("Pipes.match", function() {
-  suite("invalid DSL", function() {
-    test("without $ for field", function() {
-      var m = new Match({"name": "kuma"});
-      assert.ok(m.hasErrors().message);
-    });
+  setup(function (done) {
+    mongo.connect(done);
+  });
 
-    test("with nested fields", function() {
-      var m = new Match({"$address.city": "colombo"});
-      assert.ok(m.hasErrors().message);
-    });
+  suite("invalid DSL", function() {
+    test("with $ for field");
   });
 
   suite("applying pipe", function() {
     suite("simple operator", function() {
-      test("single field", function() {
+      test("single field", function(done) {
         var dataSet = [
           {user: "arunoda", marks: 200},
           {user: "kamal", marks: 100, grade: 20},
           {user: "arunoda", marks: 100, grade: 10},
         ];
 
-        var m = new Match({"$user": "arunoda"});
+        var dsl = {user: "arunoda"};
+        var m = new Match(dsl);
         var result = m.apply(dataSet);
 
-        assert.deepEqual(result, [
-          {user: "arunoda", marks: 200},
-          {user: "arunoda", marks: 100, grade: 10},
-        ]);
-      });
-
-      test("regexp support", function() {
-        var dataSet = [
-          {user: "arunoda", marks: 200},
-          {user: "kamal", marks: 100, grade: 20},
-          {user: "arunoda", marks: 100, grade: 10},
-        ];
-
-        var m = new Match({"$user": /ama/});
-        var result = m.apply(dataSet);
-
-        assert.deepEqual(result, [
-          {user: "kamal", marks: 100, grade: 20},
-        ]);
-      });
-
-      test("multi field", function() {
-        var dataSet = [
-          {user: "arunoda", marks: 200},
-          {user: "kamal", marks: 100, grade: 20},
-          {user: "arunoda", marks: 100, grade: 10},
-        ];
-
-        var m = new Match({
-          "$user": "arunoda",
-          "$marks": 200
+        mongo.match(dsl, dataSet, function (err, res) {
+          if(err) throw err;
+          assert.deepEqual(result, res);
+          done();
         });
-
-        var result = m.apply(dataSet);
-
-        assert.deepEqual(result, [
-          {user: "arunoda", marks: 200}
-        ]);
       });
 
-      test("multi field", function() {
+      test("regexp support", function(done) {
         var dataSet = [
           {user: "arunoda", marks: 200},
           {user: "kamal", marks: 100, grade: 20},
           {user: "arunoda", marks: 100, grade: 10},
         ];
 
-        var m = new Match({
-          "$user": "arunoda",
-          "$marks": 200
+        var dsl = {user: /ama/};
+        var m = new Match(dsl);
+        var result = m.apply(dataSet);
+
+        mongo.match(dsl, dataSet, function (err, res) {
+          if(err) throw err;
+          assert.deepEqual(result, res);
+          done();
         });
-
-        var result = m.apply(dataSet);
-
-        assert.deepEqual(result, [
-          {user: "arunoda", marks: 200}
-        ]);
       });
 
-      test("no field", function() {
+      test("multi field", function(done) {
         var dataSet = [
           {user: "arunoda", marks: 200},
           {user: "kamal", marks: 100, grade: 20},
           {user: "arunoda", marks: 100, grade: 10},
         ];
 
-        var m = new Match({});
+        var dsl = {user: "arunoda", marks: 200};
+        var m = new Match(dsl);
 
         var result = m.apply(dataSet);
 
-        assert.deepEqual(result, [
+        mongo.match(dsl, dataSet, function (err, res) {
+          if(err) throw err;
+          assert.deepEqual(result, res);
+          done();
+        });
+      });
+
+      test("multi field", function(done) {
+        var dataSet = [
           {user: "arunoda", marks: 200},
           {user: "kamal", marks: 100, grade: 20},
           {user: "arunoda", marks: 100, grade: 10},
-        ]);
+        ];
+
+        var dsl = {user: "arunoda", marks: 200};
+        var m = new Match(dsl);
+
+        var result = m.apply(dataSet);
+
+        mongo.match(dsl, dataSet, function (err, res) {
+          if(err) throw err;
+          assert.deepEqual(result, res);
+          done();
+        });
+      });
+
+      test("no field", function(done) {
+        var dataSet = [
+          {user: "arunoda", marks: 200},
+          {user: "kamal", marks: 100, grade: 20},
+          {user: "arunoda", marks: 100, grade: 10},
+        ];
+
+        var dsl = {};
+        var m = new Match(dsl);
+
+        var result = m.apply(dataSet);
+
+        mongo.match(dsl, dataSet, function (err, res) {
+          if(err) throw err;
+          assert.deepEqual(result, res);
+          done();
+        });
       });
 
     });
 
     suite("$lt", function() {
-      test("for numbers", function() {
+      test("for numbers", function(done) {
         var dataSet = [
           {user: "arunoda", marks: 200},
           {user: "kamal", marks: 100, grade: 20},
           {user: "arunoda", marks: 100, grade: 10},
         ];
 
-        var m = new Match({"$marks": {$lt: 110}});
+        var dsl = {marks: {$lt: 110}};
+        var m = new Match(dsl);
         var result = m.apply(dataSet);
 
-        assert.deepEqual(result, [
-          {user: "kamal", marks: 100, grade: 20},
-          {user: "arunoda", marks: 100, grade: 10},
-        ]);
+        mongo.match(dsl, dataSet, function (err, res) {
+          if(err) throw err;
+          assert.deepEqual(result, res);
+          done();
+        });
       });
     });
 
     suite("$lte", function() {
-      test("for numbers", function() {
+      test("for numbers", function(done) {
         var dataSet = [
           {user: "arunoda", marks: 200},
           {user: "kamal", marks: 100, grade: 20},
           {user: "arunoda", marks: 100, grade: 10},
         ];
 
-        var m = new Match({"$marks": {$lte: 100}});
+        var dsl = {marks: {$lte: 100}};
+        var m = new Match(dsl);
         var result = m.apply(dataSet);
 
-        assert.deepEqual(result, [
-          {user: "kamal", marks: 100, grade: 20},
-          {user: "arunoda", marks: 100, grade: 10},
-        ]);
+        mongo.match(dsl, dataSet, function (err, res) {
+          if(err) throw err;
+          assert.deepEqual(result, res);
+          done();
+        });
       });
     });
 
     suite("$gt", function() {
-      test("for numbers", function() {
+      test("for numbers", function(done) {
         var dataSet = [
           {user: "arunoda", marks: 200},
           {user: "kamal", marks: 100, grade: 20},
           {user: "arunoda", marks: 100, grade: 10},
         ];
 
-        var m = new Match({"$marks": {$gt: 100}});
+        var dsl = {marks: {$gt: 100}};
+        var m = new Match(dsl);
         var result = m.apply(dataSet);
 
-        assert.deepEqual(result, [
-          {user: "arunoda", marks: 200},
-        ]);
+        mongo.match(dsl, dataSet, function (err, res) {
+          if(err) throw err;
+          assert.deepEqual(result, res);
+          done();
+        });
       });
     });
 
     suite("$gte", function() {
-      test("for numbers", function() {
+      test("for numbers", function(done) {
         var dataSet = [
           {user: "arunoda", marks: 200},
           {user: "kamal", marks: 100, grade: 20},
           {user: "arunoda", marks: 100, grade: 10},
         ];
 
-        var m = new Match({"$marks": {$gte: 200}});
+        var dsl = {marks: {$gte: 200}};
+        var m = new Match(dsl);
         var result = m.apply(dataSet);
 
-        assert.deepEqual(result, [
-          {user: "arunoda", marks: 200},
-        ]);
+        mongo.match(dsl, dataSet, function (err, res) {
+          if(err) throw err;
+          assert.deepEqual(result, res);
+          done();
+        });
       });
     });
 
     suite("$eq", function() {
-      test("for numbers", function() {
+      test("for numbers", function(done) {
         var dataSet = [
           {user: "arunoda", marks: 200},
           {user: "kamal", marks: 100, grade: 20},
           {user: "arunoda", marks: 100, grade: 10},
         ];
 
-        var m = new Match({"$grade": {$eq: 10}});
+        var dsl = {grade: {$eq: 10}};
+        var m = new Match(dsl);
         var result = m.apply(dataSet);
 
-        assert.deepEqual(result, [
-          {user: "arunoda", marks: 100, grade: 10},
-        ]);
+        mongo.match(dsl, dataSet, function (err, res) {
+          if(err) throw err;
+          assert.deepEqual(result, res);
+          done();
+        });
       });
     });
 
     suite("$ne", function() {
-      test("for numbers", function() {
+      test("for numbers", function(done) {
         var dataSet = [
           {user: "arunoda", marks: 200},
           {user: "kamal", marks: 100, grade: 20},
           {user: "arunoda", marks: 100, grade: 10},
         ];
 
-        var m = new Match({"$marks": {$ne: 100}});
+        var dsl = {marks: {$ne: 100}};
+        var m = new Match(dsl);
         var result = m.apply(dataSet);
 
-        assert.deepEqual(result, [
-          {user: "arunoda", marks: 200},
-        ]);
+        mongo.match(dsl, dataSet, function (err, res) {
+          if(err) throw err;
+          assert.deepEqual(result, res);
+          done();
+        });
       });
     });
-
   });
+
 });

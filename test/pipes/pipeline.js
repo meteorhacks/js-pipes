@@ -1,7 +1,12 @@
+var mongo = require('../_mongo');
 var Pipeline = require('../../lib/pipes/pipeline')
 var assert = require('assert');
 
 suite("Pipeline", function() {
+  setup(function (done) {
+    mongo.connect(done);
+  });
+
   suite("invalid DSL", function() {
     test("with more than one pipe type in a single stage", function() {
       var pipeline = new Pipeline([
@@ -34,7 +39,7 @@ suite("Pipeline", function() {
         {$group: {_id: "$username", marks: {$sum: "$marks"}}},
         {$sort: {marks: -1}},
         {$limit: 1},
-        {$project: {username: "$_id"}}
+        {$project: {username: "$_id", _id: 0}}
       ];
 
       var dataSet = [
@@ -47,10 +52,11 @@ suite("Pipeline", function() {
       assert.ok(!pipeline.hasErrors());
 
       pipeline.apply(dataSet, function(err, result) {
-        assert.deepEqual(result, [
-          {username: "arunoda"}
-        ])
-        done();
+        mongo.aggregate(stages, dataSet, function (err, res) {
+          if(err) throw err;
+          assert.deepEqual(result, res);
+          done();
+        });
       });
     });
 
