@@ -1,6 +1,6 @@
 {
   "name": "js-pipes",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "devDependencies": {
     "mocha": "1.21.x",
     "mongodb": "1.4.x"
