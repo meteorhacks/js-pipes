@@ -1,12 +1,33 @@
 {
   "name": "js-pipes",
   "version": "1.0.1",
+  "description": "MongoDB aggregation pipeline with javascript",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "dependencies": {
+    "lodash": "2.4.x"
+  },
   "devDependencies": {
     "mocha": "1.21.x",
     "mongodb": "1.4.x"
   },
-  "repository": "https://github.com/meteorhacks/js-pipes.git",
-  "dependencies": {
-    "lodash": "2.4.x"
-  }
+  "scripts": {
+    "test": "./node_modules/mocha/bin/mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/meteorhacks/js-pipes.git"
+  },
+  "keywords": [
+    "mongo",
+    "pipeline"
+  ],
+  "author": "Meteorhacks",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/meteorhacks/js-pipes/issues"
+  },
+  "homepage": "https://github.com/meteorhacks/js-pipes"
 }
