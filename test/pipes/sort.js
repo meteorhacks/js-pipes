@@ -120,5 +120,24 @@ suite("Pipes.sort", function() {
         done();
       });
     });
+
+    test("sort by date", function(done) {
+      var dataSet = [
+        {user: "arunoda", time: new Date(1000*60*60*24*1)},
+        {user: "kamal", time: new Date(1000*60*60*24*4)},
+        {user: "arunoda", time: new Date(1000*60*60*24*2)},
+      ];
+
+      var dsl = {"time": 1};
+      var s = new Sort(dsl);
+      var result = s.apply(dataSet);
+
+      mongo.sort(dsl, dataSet, function (err, res) {
+        if(err) throw err;
+        assert.deepEqual(result, res);
+        done();
+      });
+    });
+
   });
 });
