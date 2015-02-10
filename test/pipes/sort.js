@@ -8,13 +8,6 @@ suite("Pipes.sort", function() {
   });
 
   suite("invalid DSL", function() {
-    test("with nested fields", function() {
-      var s = new Sort({
-        "aa.bb": 1
-      });
-      assert.ok(s.hasErrors().message);
-    });
-
     test("with beginning $", function() {
       var s = new Sort({
         "$aabb": 1
@@ -100,6 +93,24 @@ suite("Pipes.sort", function() {
       ];
 
       var dsl = {"marks": 1, "grade": -1};
+      var s = new Sort(dsl);
+      var result = s.apply(dataSet);
+
+      mongo.sort(dsl, dataSet, function (err, res) {
+        if(err) throw err;
+        assert.deepEqual(result, res);
+        done();
+      });
+    });
+
+    test("sort by nested field", function(done) {
+      var dataSet = [
+        {user: "arunoda", marks: {s1: 100}},
+        {user: "kamal", marks: {s1: 400}},
+        {user: "arunoda", marks: {s1: 200}},
+      ];
+
+      var dsl = {"marks.s1": 1};
       var s = new Sort(dsl);
       var result = s.apply(dataSet);
 
