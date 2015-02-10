@@ -31,6 +31,24 @@ suite("Pipes.match", function() {
         });
       });
 
+      test("nested field", function(done) {
+        var dataSet = [
+          {user: {name: "arunoda"}, marks: 200},
+          {user: {name: "kamal"}, marks: 100, grade: 20},
+          {user: {name: "arunoda"}, marks: 100, grade: 10},
+        ];
+
+        var dsl = {'user.name': "arunoda"};
+        var m = new Match(dsl);
+        var result = m.apply(dataSet);
+
+        mongo.match(dsl, dataSet, function (err, res) {
+          if(err) throw err;
+          assert.deepEqual(result, res);
+          done();
+        });
+      });
+
       test("regexp support", function(done) {
         var dataSet = [
           {user: "arunoda", marks: 200},
@@ -105,18 +123,17 @@ suite("Pipes.match", function() {
           done();
         });
       });
-
     });
 
-    suite("$lt", function() {
-      test("for numbers", function(done) {
+    suite("complex operator", function() {
+      test("nested fields", function (done) {
         var dataSet = [
-          {user: "arunoda", marks: 200},
-          {user: "kamal", marks: 100, grade: 20},
-          {user: "arunoda", marks: 100, grade: 10},
+          {user: "arunoda", marks: {s1: 200}},
+          {user: "kamal", marks: {s1: 100}, grade: 20},
+          {user: "arunoda", marks: {s1: 100}, grade: 10},
         ];
 
-        var dsl = {marks: {$lt: 110}};
+        var dsl = {'marks.s1': {$lt: 110}};
         var m = new Match(dsl);
         var result = m.apply(dataSet);
 
@@ -126,107 +143,128 @@ suite("Pipes.match", function() {
           done();
         });
       });
-    });
 
-    suite("$lte", function() {
-      test("for numbers", function(done) {
-        var dataSet = [
-          {user: "arunoda", marks: 200},
-          {user: "kamal", marks: 100, grade: 20},
-          {user: "arunoda", marks: 100, grade: 10},
-        ];
+      suite("$lt", function() {
+        test("for numbers", function(done) {
+          var dataSet = [
+            {user: "arunoda", marks: 200},
+            {user: "kamal", marks: 100, grade: 20},
+            {user: "arunoda", marks: 100, grade: 10},
+          ];
 
-        var dsl = {marks: {$lte: 100}};
-        var m = new Match(dsl);
-        var result = m.apply(dataSet);
+          var dsl = {marks: {$lt: 110}};
+          var m = new Match(dsl);
+          var result = m.apply(dataSet);
 
-        mongo.match(dsl, dataSet, function (err, res) {
-          if(err) throw err;
-          assert.deepEqual(result, res);
-          done();
+          mongo.match(dsl, dataSet, function (err, res) {
+            if(err) throw err;
+            assert.deepEqual(result, res);
+            done();
+          });
+        });
+      });
+
+      suite("$lte", function() {
+        test("for numbers", function(done) {
+          var dataSet = [
+            {user: "arunoda", marks: 200},
+            {user: "kamal", marks: 100, grade: 20},
+            {user: "arunoda", marks: 100, grade: 10},
+          ];
+
+          var dsl = {marks: {$lte: 100}};
+          var m = new Match(dsl);
+          var result = m.apply(dataSet);
+
+          mongo.match(dsl, dataSet, function (err, res) {
+            if(err) throw err;
+            assert.deepEqual(result, res);
+            done();
+          });
+        });
+      });
+
+      suite("$gt", function() {
+        test("for numbers", function(done) {
+          var dataSet = [
+            {user: "arunoda", marks: 200},
+            {user: "kamal", marks: 100, grade: 20},
+            {user: "arunoda", marks: 100, grade: 10},
+          ];
+
+          var dsl = {marks: {$gt: 100}};
+          var m = new Match(dsl);
+          var result = m.apply(dataSet);
+
+          mongo.match(dsl, dataSet, function (err, res) {
+            if(err) throw err;
+            assert.deepEqual(result, res);
+            done();
+          });
+        });
+      });
+
+      suite("$gte", function() {
+        test("for numbers", function(done) {
+          var dataSet = [
+            {user: "arunoda", marks: 200},
+            {user: "kamal", marks: 100, grade: 20},
+            {user: "arunoda", marks: 100, grade: 10},
+          ];
+
+          var dsl = {marks: {$gte: 200}};
+          var m = new Match(dsl);
+          var result = m.apply(dataSet);
+
+          mongo.match(dsl, dataSet, function (err, res) {
+            if(err) throw err;
+            assert.deepEqual(result, res);
+            done();
+          });
+        });
+      });
+
+      suite("$eq", function() {
+        test("for numbers", function(done) {
+          var dataSet = [
+            {user: "arunoda", marks: 200},
+            {user: "kamal", marks: 100, grade: 20},
+            {user: "arunoda", marks: 100, grade: 10},
+          ];
+
+          var dsl = {grade: {$eq: 10}};
+          var m = new Match(dsl);
+          var result = m.apply(dataSet);
+
+          mongo.match(dsl, dataSet, function (err, res) {
+            if(err) throw err;
+            assert.deepEqual(result, res);
+            done();
+          });
+        });
+      });
+
+      suite("$ne", function() {
+        test("for numbers", function(done) {
+          var dataSet = [
+            {user: "arunoda", marks: 200},
+            {user: "kamal", marks: 100, grade: 20},
+            {user: "arunoda", marks: 100, grade: 10},
+          ];
+
+          var dsl = {marks: {$ne: 100}};
+          var m = new Match(dsl);
+          var result = m.apply(dataSet);
+
+          mongo.match(dsl, dataSet, function (err, res) {
+            if(err) throw err;
+            assert.deepEqual(result, res);
+            done();
+          });
         });
       });
     });
 
-    suite("$gt", function() {
-      test("for numbers", function(done) {
-        var dataSet = [
-          {user: "arunoda", marks: 200},
-          {user: "kamal", marks: 100, grade: 20},
-          {user: "arunoda", marks: 100, grade: 10},
-        ];
-
-        var dsl = {marks: {$gt: 100}};
-        var m = new Match(dsl);
-        var result = m.apply(dataSet);
-
-        mongo.match(dsl, dataSet, function (err, res) {
-          if(err) throw err;
-          assert.deepEqual(result, res);
-          done();
-        });
-      });
-    });
-
-    suite("$gte", function() {
-      test("for numbers", function(done) {
-        var dataSet = [
-          {user: "arunoda", marks: 200},
-          {user: "kamal", marks: 100, grade: 20},
-          {user: "arunoda", marks: 100, grade: 10},
-        ];
-
-        var dsl = {marks: {$gte: 200}};
-        var m = new Match(dsl);
-        var result = m.apply(dataSet);
-
-        mongo.match(dsl, dataSet, function (err, res) {
-          if(err) throw err;
-          assert.deepEqual(result, res);
-          done();
-        });
-      });
-    });
-
-    suite("$eq", function() {
-      test("for numbers", function(done) {
-        var dataSet = [
-          {user: "arunoda", marks: 200},
-          {user: "kamal", marks: 100, grade: 20},
-          {user: "arunoda", marks: 100, grade: 10},
-        ];
-
-        var dsl = {grade: {$eq: 10}};
-        var m = new Match(dsl);
-        var result = m.apply(dataSet);
-
-        mongo.match(dsl, dataSet, function (err, res) {
-          if(err) throw err;
-          assert.deepEqual(result, res);
-          done();
-        });
-      });
-    });
-
-    suite("$ne", function() {
-      test("for numbers", function(done) {
-        var dataSet = [
-          {user: "arunoda", marks: 200},
-          {user: "kamal", marks: 100, grade: 20},
-          {user: "arunoda", marks: 100, grade: 10},
-        ];
-
-        var dsl = {marks: {$ne: 100}};
-        var m = new Match(dsl);
-        var result = m.apply(dataSet);
-
-        mongo.match(dsl, dataSet, function (err, res) {
-          if(err) throw err;
-          assert.deepEqual(result, res);
-          done();
-        });
-      });
-    });
   });
 
 });

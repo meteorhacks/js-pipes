@@ -19,18 +19,8 @@ suite('Pipes.group', function() {
       assert.ok(g.hasErrors() instanceof Error);
     });
 
-    test("_id contains sourceField with .", function() {
-      var g = new Group({_id: "$aa.aa"});
-      assert.ok(g.hasErrors() instanceof Error);
-    });
-
     test("_id object contains sourceField without $", function() {
       var g = new Group({_id: {"abc": "aa"}});
-      assert.ok(g.hasErrors() instanceof Error);
-    });
-
-    test("_id object contains sourceField with .", function() {
-      var g = new Group({_id: {"abc": "$aa.dd"}});
       assert.ok(g.hasErrors() instanceof Error);
     });
 
@@ -62,12 +52,6 @@ suite('Pipes.group', function() {
     test("field contains sourceField without $", function() {
       var g = new Group({_id: "$hello", aa: {
         $sum: "aa"
-      }});
-      assert.ok(g.hasErrors() instanceof Error);
-    });
-    test("field contains sourceField with .", function() {
-      var g = new Group({_id: "$hello", aa: {
-        $sum: "$aa.ff"
       }});
       assert.ok(g.hasErrors() instanceof Error);
     });
@@ -116,6 +100,38 @@ suite('Pipes.group', function() {
         {user: "arunoda", marks: 100, sub: "maths"},
         {user: "arunoda", marks: 200, sub: "science"},
         {user: "kamal", marks: 400, sub: "science"},
+      ];
+      var result = g.apply(dataSet);
+      mongo.group(dsl, dataSet, function (err, res) {
+        if(err) throw err;
+        assert.deepEqual(_.sortBy(result, '_id'), _.sortBy(res, '_id'));
+        done();
+      });
+    });
+
+    test("nested _id based sum", function(done) {
+      var dsl = {_id: "$user.name", total: {$sum: "$marks"}};
+      var g = new Group(dsl);
+      var dataSet = [
+        {user: {name: "arunoda"}, marks: 100, sub: "maths"},
+        {user: {name: "arunoda"}, marks: 200, sub: "science"},
+        {user: {name: "kamal"}, marks: 400, sub: "science"},
+      ];
+      var result = g.apply(dataSet);
+      mongo.group(dsl, dataSet, function (err, res) {
+        if(err) throw err;
+        assert.deepEqual(_.sortBy(result, '_id'), _.sortBy(res, '_id'));
+        done();
+      });
+    });
+
+    test("nested value based sum", function(done) {
+      var dsl = {_id: "$user", total: {$sum: "$marks.s1"}};
+      var g = new Group(dsl);
+      var dataSet = [
+        {user: "arunoda", marks: {s1: 100}, sub: "maths"},
+        {user: "arunoda", marks: {s1: 200}, sub: "science"},
+        {user: "kamal", marks: {s1: 400}, sub: "science"},
       ];
       var result = g.apply(dataSet);
       mongo.group(dsl, dataSet, function (err, res) {
@@ -203,6 +219,18 @@ suite('Pipes.group', function() {
 
     test("$last", function(done) {
       var dsl = {_id: {}, val: {$last: '$num'}};
+      var g = new Group(dsl);
+      var dataSet = [{num: 10}, {num: 20}, {num: 20}, {num: 3}];
+      var result = g.apply(dataSet);
+      mongo.group(dsl, dataSet, function (err, res) {
+        if(err) throw err;
+        assert.deepEqual(_.sortBy(result, '_id'), _.sortBy(res, '_id'));
+        done();
+      });
+    });
+
+    test("$push", function(done) {
+      var dsl = {_id: {}, val: {$push: '$num'}};
       var g = new Group(dsl);
       var dataSet = [{num: 10}, {num: 20}, {num: 20}, {num: 3}];
       var result = g.apply(dataSet);

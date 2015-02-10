@@ -215,6 +215,9 @@ suite('Expressions', function () {
         var out = expr(dsl, doc);
         mongo.eval(dsl, doc, function (err, res) {
           if(err) throw err;
+          var sorter = function (a, b) { return a > b; }
+          out.res.sort(sorter);
+          res.res.sort(sorter);
           assert.deepEqual(out, res);
           done();
         })
@@ -252,6 +255,9 @@ suite('Expressions', function () {
         var out = expr(dsl, doc);
         mongo.eval(dsl, doc, function (err, res) {
           if(err) throw err;
+          var sorter = function (a, b) { return a > b; }
+          out.res.sort(sorter);
+          res.res.sort(sorter);
           assert.deepEqual(out, res);
           done();
         })

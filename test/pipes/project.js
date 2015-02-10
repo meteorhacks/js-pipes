@@ -13,12 +13,6 @@ suite("Pipes.project", function() {
       var validated = p.hasErrors();
       assert.ok(validated.message);
     });
-
-    test("dot(.) in values", function() {
-      var p = new Project({abc: "$hmm.aa"});
-      var validated = p.hasErrors();
-      assert.ok(validated.message);
-    });
   });
 
   suite("applying pipe", function() {
